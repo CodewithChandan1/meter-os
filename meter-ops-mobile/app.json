@@ -29,8 +29,14 @@
       "expo-web-browser"
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
-    }
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c6c4fd55-1d97-4a20-922d-752486528dea"
+      }
+    },
+    "owner": "chandan_321"
   }
 }
