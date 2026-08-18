@@ -1,0 +1,1369 @@
+# Meter Management & Assignment App — Development Prompt
+
+Build a production-ready **Meter Management & Tracking Mobile App** using **React Native** for the frontend and **Node.js + Express.js + MongoDB** for the backend.
+
+The app is designed for teams/workers who install electricity/water/utility meters at customer locations and need a centralized system to track:
+
+* Which meter is assigned to which customer/address
+* Which meter is currently available
+* Which team member has taken a meter
+* Who installed/received/assigned the meter
+* Customer and meter details
+* Installation date
+* Meter status
+* Cancellation/reason
+* Digital signatures
+* Customer/location/map information
+* Search and filtering
+* User authentication and access control
+
+The application should be simple enough for field workers to use quickly from their mobile phones.
+
+---
+
+# 1. Technology Stack
+
+## Frontend
+
+Use:
+
+* React Native
+* React Navigation
+* Redux Toolkit where global state is required
+* RTK Query for API communication/caching
+* JavaScript/JSX, NOT TypeScript
+* React Native Paper or another clean mobile UI library if required
+* Secure token storage using an appropriate secure storage solution
+* Device camera/location capabilities where required
+
+## Backend
+
+Use:
+
+* Node.js
+* Express.js
+* MongoDB
+* Mongoose
+* JWT authentication
+* bcrypt/bcryptjs for password hashing
+* REST APIs
+* Proper request validation
+* Centralized error handling
+* Role-based authorization
+
+---
+
+# 2. Authentication
+
+Create complete authentication functionality.
+
+## Sign Up
+
+User should be able to create their own account.
+
+Fields:
+
+* Full Name
+* Email
+* Mobile Number
+* Password
+* Confirm Password
+
+After successful registration, the user should be able to log in and create/manage their own meter records.
+
+## Sign In
+
+Fields:
+
+* Email/Mobile
+* Password
+
+After successful login:
+
+* Store authentication token securely
+* Keep the user logged in
+* Redirect to Dashboard
+
+## Logout
+
+Provide logout functionality.
+
+Clear the stored authentication token and redirect the user to Sign In.
+
+---
+
+# 3. User & Team Concept
+
+The application should support multiple users.
+
+Each user can create and manage their own meter records.
+
+However, users should also be able to work together as a team.
+
+Implement a team/workspace concept where a user can:
+
+* Create a team
+* Invite/add team members
+* View team members
+* Assign meters to team members
+* Transfer/hand over meters to another team member
+* Record the receiving member's digital signature
+
+A meter record should maintain a complete history of who handled it.
+
+Example:
+
+Meter:
+
+`AC No: 123456`
+
+History:
+
+```text
+Created by: Chandan
+Assigned to: Rahul
+Received by: Rahul
+Installed by: Rahul
+Installation Date: 11 Aug 2026
+```
+
+---
+
+# 4. Dashboard
+
+Create a mobile-friendly dashboard.
+
+Display summary cards such as:
+
+* Total Meters
+* Available Meters
+* Assigned Meters
+* Installed Meters
+* Cancelled Meters
+* Pending Installation
+
+Example:
+
+```text
+--------------------------------
+        Meter Dashboard
+--------------------------------
+
+Total Meters       250
+Available           80
+Assigned            45
+Installed          110
+Cancelled           15
+Pending             20
+--------------------------------
+```
+
+Dashboard should also show recent meter activity.
+
+Example:
+
+```text
+Recent Activity
+
+Meter #MTR123
+Assigned to Rahul
+Today, 10:30 AM
+
+Meter #MTR456
+Installed at Model Town
+Today, 09:15 AM
+```
+
+---
+
+# 5. Meter Management
+
+Create a complete CRUD system for meters.
+
+## Add Meter
+
+Create an "Add Meter" screen.
+
+Fields:
+
+### Meter Information
+
+* Meter AC Number
+* Meter Serial Number
+* Meter Capacity
+* Meter Company
+* Meter Type (optional)
+* Meter Status
+
+### Customer Information
+
+* Customer/User Name
+* Customer Mobile Number
+* User Address
+
+### Installation Information
+
+* Implementation/Installation Date
+* Map Location
+* Latitude
+* Longitude
+* Google Maps Link
+
+### Additional Information
+
+* Notes
+* Meter Photo (optional)
+
+---
+
+# 6. Meter Status
+
+Every meter should have a clear status.
+
+Recommended statuses:
+
+```text
+AVAILABLE
+ASSIGNED
+INSTALLATION_PENDING
+INSTALLED
+CANCELLED
+```
+
+Status should automatically update based on actions.
+
+Example:
+
+When a new meter is added:
+
+```text
+AVAILABLE
+```
+
+When assigned to a team member:
+
+```text
+ASSIGNED
+```
+
+When installation is completed:
+
+```text
+INSTALLED
+```
+
+When cancelled:
+
+```text
+CANCELLED
+```
+
+---
+
+# 7. Meter Detail Screen
+
+When a user opens a meter, show complete information.
+
+Example:
+
+```text
+Meter Details
+
+AC Number
+123456789
+
+Customer
+Raj Kumar
+
+Meter Serial Number
+MTR-928372
+
+Capacity
+5 KW
+
+Company
+XYZ Electrical
+
+Address
+Model Town, Jalandhar
+
+Installation Date
+11 Aug 2026
+
+Status
+INSTALLED
+```
+
+Then display action buttons depending on the current status.
+
+---
+
+# 8. Assign Meter
+
+A meter should be assignable to another team member.
+
+Example flow:
+
+```text
+Meter Details
+      ↓
+Assign Meter
+      ↓
+Select Team Member
+      ↓
+Show Meter Information
+      ↓
+Receiver Reviews Information
+      ↓
+Receiver Signs
+      ↓
+Confirm Assignment
+```
+
+The receiver must provide a digital signature.
+
+The system should store:
+
+* Assigned By
+* Assigned To
+* Assignment Date/Time
+* Receiver Signature
+* Signature timestamp
+* Meter status
+
+The signature should be saved securely and associated with that assignment transaction.
+
+---
+
+# 9. Digital Signature
+
+Implement a signature pad in React Native.
+
+The user should be able to sign using their finger.
+
+Provide:
+
+* Clear Signature
+* Confirm Signature
+
+Save the signature as an image/file or appropriate encoded format.
+
+Every assignment/hand-over should maintain its own signature record.
+
+Example:
+
+```text
+Meter Handover
+
+Meter Serial: MTR12345
+
+Given By:
+Chandan
+
+Received By:
+Rahul
+
+Date:
+11 Aug 2026
+
+Signature:
+[Digital Signature]
+
+Confirmed
+```
+
+The signature should NOT simply overwrite the previous signature.
+
+Maintain an assignment/history record for every handover.
+
+---
+
+# 10. Installation / Done Action
+
+On the meter detail page provide a:
+
+**DONE** button.
+
+When the installer clicks DONE:
+
+Open/confirm installation information.
+
+The user should be able to:
+
+* Confirm installation
+* Confirm installation date
+* Confirm customer information
+* Confirm address
+* Save location
+* Add notes
+* Optionally upload meter/customer/location photo
+
+After confirmation:
+
+```text
+Status = INSTALLED
+```
+
+Store:
+
+* Installed By
+* Installation Date
+* Installation Time
+* Location
+* Notes
+* Photos if available
+
+---
+
+# 11. Cancel Meter
+
+Provide a:
+
+**CANCEL** button.
+
+When clicked, DO NOT immediately cancel the meter.
+
+Open a modal:
+
+```text
+Cancel Meter
+
+Reason for cancellation:
+
+[________________________]
+
+Cancel
+Confirm Cancellation
+```
+
+The cancellation reason should be mandatory.
+
+After confirmation:
+
+```text
+Status = CANCELLED
+```
+
+Store:
+
+* Cancelled By
+* Cancellation Date
+* Cancellation Time
+* Cancellation Reason
+
+Example:
+
+```text
+Cancelled
+
+Reason:
+Customer refused installation.
+
+Cancelled By:
+Rahul
+
+Date:
+11 Aug 2026
+```
+
+---
+
+# 12. Search
+
+Add a prominent search bar at the top of the main meter listing screen.
+
+Users should be able to search using:
+
+* Customer/User Name
+* Meter AC Number
+* Meter Serial Number
+* Address
+
+Example:
+
+```text
+Search meters...
+
+[ Raj Kumar                  🔍 ]
+```
+
+Search should be fast and should support partial matching.
+
+Example:
+
+Searching:
+
+```text
+Raj
+```
+
+should return:
+
+```text
+Raj Kumar
+Rajesh Sharma
+Rajinder Singh
+```
+
+Searching:
+
+```text
+MTR123
+```
+
+should return the corresponding meter.
+
+For large datasets, implement server-side search with proper MongoDB indexes instead of downloading all records to the mobile application.
+
+---
+
+# 13. Filters
+
+Add filters alongside search.
+
+Users should be able to filter by:
+
+### Status
+
+* All
+* Available
+* Assigned
+* Installation Pending
+* Installed
+* Cancelled
+
+### Team Member
+
+Show meters assigned to a particular team member.
+
+### Date
+
+Filter by:
+
+* Installation date
+* Assignment date
+* Created date
+
+---
+
+# 14. Map Integration
+
+When adding/editing a customer location, allow the user to capture the location.
+
+Support:
+
+* Current GPS location
+* Latitude
+* Longitude
+* Google Maps link
+* Open location in Google Maps
+
+On the meter detail page:
+
+```text
+Customer Location
+
+[ Open in Google Maps ]
+```
+
+When clicked, open the corresponding location in the device's map application.
+
+---
+
+# 15. Meter List
+
+Create a clean mobile list.
+
+Each meter card should display:
+
+```text
+Raj Kumar
+AC: 123456789
+Serial: MTR12345
+Capacity: 5 KW
+Status: ASSIGNED
+
+Assigned To: Rahul
+
+[View]
+```
+
+Use status badges/chips.
+
+The UI should be optimized for field workers and should avoid unnecessary complexity.
+
+---
+
+# 16. Meter History
+
+Every meter must maintain an immutable activity/history timeline.
+
+Example:
+
+```text
+Meter History
+
+11 Aug 2026 — 10:30 AM
+Assigned to Rahul
+By Chandan
+Signature captured
+
+11 Aug 2026 — 02:15 PM
+Installation completed
+By Rahul
+
+11 Aug 2026 — 02:20 PM
+Location updated
+
+```
+
+History should include:
+
+* Meter created
+* Meter assigned
+* Meter transferred
+* Meter installed
+* Meter cancelled
+* Meter updated
+* Signature events
+
+Do NOT overwrite historical assignment records.
+
+---
+
+# 17. Permissions & Access Control
+
+Implement role-based access.
+
+Roles:
+
+### Admin
+
+Can:
+
+* Create team
+* Add/remove members
+* Add meters
+* Edit meters
+* Assign meters
+* View all team meters
+* Cancel meters
+* View history
+* Manage team
+
+### Team Member
+
+Can:
+
+* View team meters
+* Search meters
+* Add meters if permitted
+* Receive assigned meters
+* Sign assignments
+* Mark installation as DONE
+* Cancel meters if permitted
+* View relevant history
+
+Permissions should be configurable in the future.
+
+---
+
+# 18. Important Data Ownership Rule
+
+A user should have their own account and list.
+
+Team members should be able to access shared team data only after being added/invited to that team.
+
+Do NOT make all registered users automatically able to see everyone's data.
+
+Implement proper authorization at the backend level.
+
+For example:
+
+```text
+User A
+ ├── Personal/Team A data
+ │
+ └── Cannot access Team B data
+
+User B
+ ├── Team A data
+ │
+ └── Team B data
+```
+
+The backend must verify ownership/team membership on every protected API.
+
+Never rely only on frontend restrictions.
+
+---
+
+# 19. MongoDB Database Design
+
+Design proper Mongoose schemas.
+
+Recommended collections:
+
+### users
+
+```text
+users
+- _id
+- name
+- email
+- mobile
+- passwordHash
+- role
+- createdAt
+- updatedAt
+```
+
+### teams
+
+```text
+teams
+- _id
+- name
+- owner
+- createdAt
+- updatedAt
+```
+
+### teamMembers
+
+```text
+teamMembers
+- _id
+- teamId
+- userId
+- role
+- joinedAt
+```
+
+### meters
+
+```text
+meters
+- _id
+- teamId
+- acNumber
+- customerName
+- customerMobile
+- serialNumber
+- address
+- capacity
+- company
+- status
+- installationDate
+- latitude
+- longitude
+- mapLink
+- createdBy
+- assignedTo
+- installedBy
+- cancellationReason
+- cancelledBy
+- cancelledAt
+- createdAt
+- updatedAt
+```
+
+### meterAssignments
+
+```text
+meterAssignments
+- _id
+- meterId
+- teamId
+- assignedBy
+- assignedTo
+- signature
+- assignedAt
+- acceptedAt
+- status
+```
+
+### meterHistory
+
+```text
+meterHistory
+- _id
+- meterId
+- teamId
+- action
+- performedBy
+- metadata
+- createdAt
+```
+
+---
+
+# 20. MongoDB Indexes
+
+Because search will be an important feature, create indexes for:
+
+```text
+acNumber
+serialNumber
+customerName
+teamId
+status
+assignedTo
+```
+
+Consider compound indexes based on actual query patterns.
+
+For example:
+
+```text
+teamId + status
+teamId + customerName
+teamId + acNumber
+teamId + serialNumber
+```
+
+Avoid loading the entire meter collection on the client.
+
+Use:
+
+```text
+pagination
+server-side filtering
+server-side searching
+```
+
+---
+
+# 21. REST API Structure
+
+Create clean versioned APIs.
+
+Example:
+
+```text
+/api/v1/auth/register
+/api/v1/auth/login
+/api/v1/auth/me
+/api/v1/auth/logout
+
+/api/v1/teams
+/api/v1/teams/:teamId
+/api/v1/teams/:teamId/members
+/api/v1/teams/:teamId/invite
+
+/api/v1/meters
+/api/v1/meters/:id
+/api/v1/meters/:id/assign
+/api/v1/meters/:id/install
+/api/v1/meters/:id/cancel
+/api/v1/meters/:id/history
+
+/api/v1/dashboard
+```
+
+Use:
+
+* JWT middleware
+* Authentication middleware
+* Team membership middleware
+* Role/permission middleware
+* Request validation
+* Centralized error handling
+
+---
+
+# 22. API Pagination
+
+Meter listing APIs should support:
+
+```text
+?page=1
+&limit=20
+&search=raj
+&status=ASSIGNED
+&assignedTo=userId
+```
+
+Response format:
+
+```json
+{
+  "success": true,
+  "data": [],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8
+  }
+}
+```
+
+---
+
+# 23. Mobile UX
+
+The app is primarily for field workers.
+
+Therefore:
+
+* Keep screens simple
+* Large touch targets
+* Fast navigation
+* Minimal typing
+* Clear status indicators
+* Confirmation before destructive actions
+* Loading states
+* Empty states
+* Error states
+* Offline-friendly considerations
+* Avoid unnecessary animations
+
+The most frequently used actions should be easily accessible.
+
+Recommended bottom navigation:
+
+```text
+Home | Meters | Add | Team | Profile
+```
+
+---
+
+# 24. Notifications
+
+Design the architecture so push notifications can be added later.
+
+Potential notifications:
+
+```text
+Meter assigned to you
+Meter received
+Meter installation pending
+Meter installation completed
+Meter cancelled
+```
+
+Use Firebase Cloud Messaging in a future phase.
+
+---
+
+# 25. Security Requirements
+
+Implement:
+
+* Password hashing
+* JWT authentication
+* Secure token storage on mobile
+* Input validation
+* API authorization
+* MongoDB injection protection
+* Rate limiting for authentication APIs
+* Proper CORS configuration
+* Helmet
+* Secure error responses
+* Never expose password hashes
+* Never trust user/team IDs from the client without authorization checks
+
+---
+
+# 26. Important Business Rules
+
+Implement these rules:
+
+### Rule 1
+
+A meter can belong to only one team at a time.
+
+### Rule 2
+
+A meter cannot be assigned to a user who is not a member of that team.
+
+### Rule 3
+
+A cancelled meter cannot be marked as installed unless an authorized user reopens/reactivates it.
+
+### Rule 4
+
+An installed meter should not be casually reassigned.
+
+Require explicit authorization for changes after installation.
+
+### Rule 5
+
+Every assignment must create a history record.
+
+### Rule 6
+
+Every handover must capture the receiver's signature.
+
+### Rule 7
+
+Cancellation requires a reason.
+
+### Rule 8
+
+Historical records should never be silently deleted/overwritten.
+
+### Rule 9
+
+Users can only access data belonging to teams they are members of.
+
+### Rule 10
+
+AC number and meter serial number should have appropriate uniqueness rules within the relevant team/business context.
+
+---
+
+# 27. Project Structure
+
+Use a scalable structure.
+
+## React Native
+
+```text
+src/
+  components/
+  screens/
+    auth/
+    dashboard/
+    meters/
+    teams/
+    profile/
+  navigation/
+  redux/
+    store.js
+    slices/
+    api/
+  hooks/
+  services/
+  utils/
+  constants/
+  assets/
+```
+
+## Node.js
+
+```text
+src/
+  controllers/
+  routes/
+  models/
+  middleware/
+  services/
+  validators/
+  utils/
+  config/
+  constants/
+  app.js
+  server.js
+```
+
+Keep business logic out of controllers where possible.
+
+Use services for complex operations such as:
+
+```text
+assignMeter()
+acceptMeter()
+installMeter()
+cancelMeter()
+createMeterHistory()
+```
+
+---
+
+# 28. UI Screens
+
+Build at minimum:
+
+### Authentication
+
+1. Splash Screen
+2. Sign In
+3. Sign Up
+4. Forgot Password
+
+### Main App
+
+5. Dashboard
+6. Meter List
+7. Add Meter
+8. Meter Details
+9. Edit Meter
+10. Assign Meter
+11. Digital Signature
+12. Installation Confirmation
+13. Cancel Meter
+14. Meter History
+15. Search/Filter
+16. Team Members
+17. Team Member Details
+18. Profile
+19. Settings
+
+---
+
+# 29. Add Meter UX
+
+Make the Add Meter screen efficient.
+
+Instead of putting 15+ fields on one long screen, divide it into logical sections:
+
+```text
+Step 1
+Meter Information
+
+Step 2
+Customer Information
+
+Step 3
+Location
+
+Step 4
+Installation Details
+
+Step 5
+Review & Save
+```
+
+Allow the user to move backward/forward without losing entered information.
+
+---
+
+# 30. Error Handling
+
+Every API call must have proper handling.
+
+Show user-friendly messages.
+
+Examples:
+
+```text
+Meter added successfully.
+
+Meter serial number already exists.
+
+You are not authorized to assign this meter.
+
+This meter has already been assigned.
+
+Cancellation reason is required.
+
+Unable to capture location.
+
+Something went wrong. Please try again.
+```
+
+Do not show raw backend errors to users.
+
+---
+
+# 31. Loading & Empty States
+
+Implement skeleton/loading states.
+
+Example:
+
+```text
+Loading meters...
+```
+
+Empty state:
+
+```text
+No meters found.
+
+[ + Add Meter ]
+```
+
+Search empty state:
+
+```text
+No meter found for "MTR123".
+```
+
+---
+
+# 32. Performance Requirements
+
+The application should remain fast even when the team has thousands or hundreds of thousands of meter records.
+
+Use:
+
+* Server-side pagination
+* Debounced search
+* MongoDB indexes
+* RTK Query caching
+* FlatList optimization in React Native
+* Avoid unnecessary re-renders
+* Memoized components where useful
+* Lazy loading for heavy screens
+* Optimized API payloads
+
+Do not fetch all meters at once.
+
+---
+
+# 33. Future Extensibility
+
+Design the architecture so the following can be added later without major restructuring:
+
+* Multiple companies/organizations
+* Multiple teams
+* Advanced permissions
+* Barcode/QR code scanning
+* Meter photo upload
+* Customer signature
+* GPS verification
+* Offline mode
+* Push notifications
+* PDF reports
+* Excel/CSV export
+* Analytics
+* Installation reports
+* Audit logs
+* WhatsApp/SMS notifications
+* Admin web dashboard
+
+Especially design the meter ID and history system so QR/barcode scanning can later search a meter instantly.
+
+---
+
+# 34. Deliverables
+
+Build the project completely, not just a UI prototype.
+
+Deliver:
+
+### Frontend
+
+* React Native application
+* Authentication
+* Navigation
+* Dashboard
+* Meter CRUD
+* Search
+* Filters
+* Assignment
+* Digital signature
+* Installation flow
+* Cancellation flow
+* Team management
+* Meter history
+* Error/loading/empty states
+
+### Backend
+
+* Node.js + Express API
+* MongoDB/Mongoose schemas
+* Authentication
+* Authorization
+* Team management
+* Meter APIs
+* Assignment APIs
+* Installation APIs
+* Cancellation APIs
+* History APIs
+* Pagination
+* Search
+* Validation
+* Error handling
+* Security middleware
+
+### Documentation
+
+Provide:
+
+* Environment variable documentation
+* MongoDB setup
+* Local development setup
+* API documentation
+* Database schema explanation
+* Authentication flow
+* Deployment instructions
+* Production deployment recommendations
+
+---
+
+# 35. Development Approach
+
+Implement the project in phases.
+
+## Phase 1 — Foundation
+
+* React Native setup
+* Node.js/Express setup
+* MongoDB connection
+* Authentication
+* Navigation
+* Basic user model
+
+## Phase 2 — Meter Management
+
+* Add meter
+* Edit meter
+* Delete/archive meter
+* Meter list
+* Meter details
+* Status management
+
+## Phase 3 — Team Management
+
+* Create team
+* Add/invite members
+* Team membership
+* Roles/permissions
+
+## Phase 4 — Assignment
+
+* Assign meter
+* Team member selection
+* Digital signature
+* Assignment history
+* Handover tracking
+
+## Phase 5 — Installation
+
+* DONE flow
+* Installation date
+* GPS location
+* Map link
+* Installation history
+
+## Phase 6 — Cancellation
+
+* Cancel action
+* Mandatory cancellation reason
+* Cancellation history
+
+## Phase 7 — Search & Filters
+
+* Name search
+* AC number search
+* Serial number search
+* Address search
+* Status filters
+* Team-member filters
+* Pagination
+
+## Phase 8 — Production Hardening
+
+* Security
+* Validation
+* Performance optimization
+* Error handling
+* Logging
+* Testing
+* Deployment configuration
+
+---
+
+# Final Requirement
+
+The final application should feel like a **real production-ready meter inventory + field installation management system**, not a simple CRUD demo.
+
+The primary goal is:
+
+> A team should be able to know at any moment where every meter is, who currently has it, where it needs to be installed, whether it has been installed/cancelled, and have a verifiable digital signature whenever a meter is handed from one team member to another.
+
+Prioritize **data integrity, audit history, team-based access control, fast search, simple field-worker UX, and scalability**.
