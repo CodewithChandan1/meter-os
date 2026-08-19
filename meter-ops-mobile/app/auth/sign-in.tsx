@@ -1,21 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColors } from '@/hooks/useColors';
 import { useMeters } from '@/context/MeterContext';
-import { Field, PrimaryButton, Toast, styles as ui } from '@/components/MeterUI';
+import { AuthWaveHeader } from '@/components/AuthWaveHeader';
+import { AuthUnderlineInput } from '@/components/AuthUnderlineInput';
+import { Toast } from '@/components/MeterUI';
+import { useToast } from '@/context/ToastContext';
 
 let LocalAuthentication: typeof import('expo-local-authentication') | null = null;
 try {
   LocalAuthentication = require('expo-local-authentication');
 } catch (e) {
-  // fallback if native module loading
+  // fallback
 }
-
-import { useToast } from '@/context/ToastContext';
 
 export default function SignIn() {
   const colors = useColors();
@@ -28,16 +37,17 @@ export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [pin, setPin] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
 
-  // Check if lock has been configured and auto-prompt biometrics only if configured
   useEffect(() => {
     let isMounted = true;
     const checkSecuritySetup = async () => {
       try {
         const configured = await AsyncStorage.getItem('security_configured');
-        const savedEmail = (await AsyncStorage.getItem('email')) || (await AsyncStorage.getItem('last_email'));
+        const savedEmail =
+          (await AsyncStorage.getItem('email')) || (await AsyncStorage.getItem('last_email'));
 
         if (savedEmail) {
           setEmail(savedEmail);
@@ -49,7 +59,6 @@ export default function SignIn() {
             setMode('PIN');
           }
 
-          // Trigger Native Fingerprint/Face ID Prompt for Returning Configured User
           if (LocalAuthentication) {
             const hasHardware = await LocalAuthentication.hasHardwareAsync();
             const isEnrolled = await LocalAuthentication.isEnrolledAsync();
@@ -63,7 +72,8 @@ export default function SignIn() {
               });
 
               if (result.success && isMounted) {
-                const targetEmail = savedEmail || (await AsyncStorage.getItem('last_email')) || email.trim();
+                const targetEmail =
+                  savedEmail || (await AsyncStorage.getItem('last_email')) || email.trim();
                 if (targetEmail) {
                   await signIn(targetEmail, 'field-ready');
                   router.replace('/(tabs)');
@@ -73,7 +83,6 @@ export default function SignIn() {
             }
           }
         } else {
-          // New User or Unconfigured Device -> Show Clean Sign In / Sign Up
           if (isMounted) {
             setHasConfiguredLock(false);
             setMode('PASSWORD');
@@ -136,9 +145,14 @@ export default function SignIn() {
           setError('Incorrect 4-digit Security PIN. Please try again.');
           return;
         }
-        const targetEmail = (await AsyncStorage.getItem('email')) || (await AsyncStorage.getItem('last_email')) || email.trim();
+        const targetEmail =
+          (await AsyncStorage.getItem('email')) ||
+          (await AsyncStorage.getItem('last_email')) ||
+          email.trim();
         if (!targetEmail) {
-          setError('No saved account found for PIN unlock. Please switch to "Password Login" tab to sign in.');
+          setError(
+            'No saved account found for PIN unlock. Switch to Password Login to sign in.'
+          );
           return;
         }
         await signIn(targetEmail, 'field-ready');
@@ -165,102 +179,94 @@ export default function SignIn() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flex: 1, backgroundColor: colors.background }}
+      style={{ flex: 1, backgroundColor: '#FFFFFF' }}
     >
       <Toast message={toast} type="info" visible={!!toast} onClose={() => setToast('')} />
 
-      <View style={[styles.wrap, { paddingTop: insets.top + 36, paddingBottom: insets.bottom + 20 }]}>
-        <View style={[styles.logo, { backgroundColor: colors.secondary }]}>
-          <Feather name="shield" size={25} color={colors.primaryForeground} />
-        </View>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + 30 }}>
+        {/* Top Wave Graphic Header */}
+        <AuthWaveHeader />
 
-        <Text style={[styles.wordmark, { color: colors.foreground }]}>meterops</Text>
-        <Text style={[styles.title, { color: colors.foreground }]}>
-          {hasConfiguredLock ? 'Workspace Lock' : 'Welcome Back'}
-        </Text>
-        <Text style={[ui.body, { color: colors.mutedForeground, textAlign: 'center', maxWidth: 290 }]}>
-          {hasConfiguredLock
-            ? 'Unlock with Fingerprint, Face ID or 4-Digit Security PIN.'
-            : 'Sign in to access your smart meter workspace.'}
-        </Text>
-
-        <View style={[styles.form, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          {/* Mode Selector Tabs - Always available on Sign In */}
-          <View style={{ flexDirection: 'row', gap: 6, marginBottom: 4 }}>
-            <Pressable
-              onPress={() => setMode('PIN')}
-              style={[
-                styles.tabBtn,
-                { backgroundColor: mode === 'PIN' ? colors.primary : colors.background, borderColor: colors.border },
-              ]}
-            >
-              <Text
-                style={{
-                  color: mode === 'PIN' ? colors.primaryForeground : colors.foreground,
-                  fontSize: 12,
-                  fontWeight: '600',
-                }}
-              >
-                4-Digit PIN Lock
-              </Text>
+        <View style={styles.content}>
+          {/* Top Right Header Tab Switcher */}
+          <View style={styles.tabHeaderRow}>
+            <Pressable onPress={() => router.push('/auth/sign-up')}>
+              <Text style={[styles.tabText, styles.tabInactive]}>Sign up</Text>
             </Pressable>
+            <View style={styles.tabActiveWrapper}>
+              <Text style={[styles.tabText, styles.tabActive]}>Sign in</Text>
+              <View style={styles.tabIndicator} />
+            </View>
+          </View>
+
+          {/* Subheader Title */}
+          <View style={{ marginTop: 24, marginBottom: 16 }}>
+            <Text style={styles.heroTitle}>
+              {hasConfiguredLock ? 'Workspace Lock' : 'Welcome Back'}
+            </Text>
+            <Text style={styles.heroSub}>
+              {hasConfiguredLock
+                ? 'Unlock MeterOps with PIN or Biometrics'
+                : 'Sign in to manage household smart meters'}
+            </Text>
+          </View>
+
+          {/* Lock Mode Switcher (PIN vs Password) */}
+          <View style={styles.modeToggleRow}>
             <Pressable
               onPress={() => setMode('PASSWORD')}
               style={[
-                styles.tabBtn,
-                { backgroundColor: mode === 'PASSWORD' ? colors.primary : colors.background, borderColor: colors.border },
+                styles.modeToggleChip,
+                mode === 'PASSWORD' && styles.modeToggleChipActive,
               ]}
             >
               <Text
-                style={{
-                  color: mode === 'PASSWORD' ? colors.primaryForeground : colors.foreground,
-                  fontSize: 12,
-                  fontWeight: '600',
-                }}
+                style={[
+                  styles.modeToggleText,
+                  mode === 'PASSWORD' && styles.modeToggleTextActive,
+                ]}
               >
                 Password Login
               </Text>
             </Pressable>
+            <Pressable
+              onPress={() => setMode('PIN')}
+              style={[styles.modeToggleChip, mode === 'PIN' && styles.modeToggleChipActive]}
+            >
+              <Text
+                style={[
+                  styles.modeToggleText,
+                  mode === 'PIN' && styles.modeToggleTextActive,
+                ]}
+              >
+                4-Digit PIN
+              </Text>
+            </Pressable>
           </View>
 
+          {/* Form Fields */}
           {mode === 'PIN' ? (
-            <View style={{ gap: 8 }}>
+            <View style={{ marginVertical: 14, gap: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text style={[ui.label, { color: colors.foreground }]}>Enter 4-Digit Security PIN</Text>
+                <Text style={{ fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#1e293b' }}>
+                  Enter 4-Digit Security PIN
+                </Text>
                 <Pressable onPress={triggerNativeBiometricPrompt}>
-                  <Feather name="lock" size={20} color={colors.primary} />
+                  <Feather name="shield" size={20} color="#0052D4" />
                 </Pressable>
               </View>
 
-              {/* PIN Dots Display */}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  gap: 14,
-                  justifyContent: 'center',
-                  paddingVertical: 10,
-                  backgroundColor: colors.background,
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  marginVertical: 4,
-                }}
-              >
+              {/* PIN Dots */}
+              <View style={styles.pinDotsRow}>
                 {[0, 1, 2, 3].map((idx) => (
                   <View
                     key={idx}
-                    style={{
-                      width: 44,
-                      height: 48,
-                      borderRadius: 10,
-                      borderWidth: 2,
-                      borderColor: pin.length > idx ? colors.primary : colors.border,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      backgroundColor: colors.card,
-                    }}
+                    style={[
+                      styles.pinDotBox,
+                      pin.length > idx && { borderColor: '#0052D4', backgroundColor: '#EFF6FF' },
+                    ]}
                   >
-                    <Text style={{ fontSize: 22, fontWeight: '700', color: colors.primary }}>
+                    <Text style={{ fontSize: 22, fontFamily: 'Inter_700Bold', color: '#0052D4' }}>
                       {pin[idx] ? '●' : ''}
                     </Text>
                   </View>
@@ -268,7 +274,7 @@ export default function SignIn() {
               </View>
 
               {/* Keypad */}
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+              <View style={styles.keypadGrid}>
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'].map((digit) => (
                   <Pressable
                     key={digit}
@@ -278,27 +284,20 @@ export default function SignIn() {
                       else if (pin.length < 4) setPin((prev) => prev + digit);
                     }}
                     style={({ pressed }) => [
-                      {
-                        width: 72,
-                        height: 44,
-                        borderRadius: 9,
-                        backgroundColor: pressed ? colors.navySoft : colors.background,
-                        borderWidth: 1,
-                        borderColor: colors.border,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      },
+                      styles.keypadBtn,
+                      pressed && { backgroundColor: '#E2E8F0' },
                     ]}
                   >
-                    <Text style={{ fontSize: 17, fontWeight: '700', color: colors.foreground }}>{digit}</Text>
+                    <Text style={styles.keypadText}>{digit}</Text>
                   </Pressable>
                 ))}
               </View>
             </View>
           ) : (
-            <>
-              <Field
-                label="Work email"
+            <View style={{ marginVertical: 8 }}>
+              <AuthUnderlineInput
+                label="E-mail"
+                iconName="mail"
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
@@ -306,64 +305,236 @@ export default function SignIn() {
                 placeholder="name@company.com"
                 testID="sign-in-email"
               />
-              <Field
+
+              <AuthUnderlineInput
                 label="Password"
+                iconName="lock"
+                isPassword
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry
                 placeholder="Enter password"
                 testID="sign-in-password"
               />
+
               <Pressable
                 onPress={() => router.push('/auth/forgot-password')}
-                style={{ alignSelf: 'flex-end', marginTop: -4, marginBottom: 4 }}
+                style={{ alignSelf: 'flex-end', marginTop: 4 }}
               >
-                <Text style={[ui.caption, { color: colors.primary, fontWeight: '600' }]}>
-                  Forgot Password?
+                <Text style={{ fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#0052D4' }}>
+                  Forgot password?
                 </Text>
               </Pressable>
-            </>
+            </View>
           )}
 
-          {error ? <Text style={[ui.caption, { color: colors.destructive }]}>{error}</Text> : null}
+          {/* Error Message */}
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          <PrimaryButton
+          {/* Remember Me Checkbox */}
+          <Pressable
+            onPress={() => setRememberMe(!rememberMe)}
+            style={styles.checkboxRow}
+          >
+            <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+              {rememberMe && <Feather name="check" size={13} color="#FFFFFF" />}
+            </View>
+            <Text style={styles.checkboxLabel}>
+              Remember me & <Text style={styles.boldBlueText}>Keep signed in</Text>
+            </Text>
+          </Pressable>
+
+          {/* Large Pill Action Button */}
+          <Pressable
             testID="sign-in-submit"
-            label={mode === 'PIN' ? 'Unlock Workspace' : 'Sign In'}
-            icon={mode === 'PIN' ? 'lock' : 'arrow-right'}
             onPress={submit}
-          />
+            style={({ pressed }) => [
+              styles.pillButton,
+              pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
+            ]}
+          >
+            <Text style={styles.pillButtonText}>
+              {mode === 'PIN' ? 'Unlock Workspace' : 'Sign in'}
+            </Text>
+          </Pressable>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 6, gap: 4 }}>
-            <Text style={[ui.caption, { color: colors.mutedForeground }]}>Don't have an account?</Text>
-            <Pressable onPress={() => router.push('/auth/sign-up')}>
-              <Text style={[ui.caption, { color: colors.primary, fontWeight: '700' }]}>Sign Up</Text>
-            </Pressable>
-          </View>
+          {/* Bottom Switch Link */}
+          <Pressable
+            onPress={() => router.push('/auth/sign-up')}
+            style={styles.bottomLinkPress}
+          >
+            <Text style={styles.bottomLinkText}>Need a new account? <Text style={{ color: '#0052D4', fontFamily: 'Inter_700Bold' }}>Sign up</Text></Text>
+          </Pressable>
         </View>
-
-        <Pressable
-          testID="sign-in-help"
-          onPress={() =>
-            showAlert({
-              title: 'MeterOps Help',
-              message: 'Sign in using your Work Email and Password, or Sign Up for a new account.',
-              type: 'info',
-            })
-          }
-        >
-          <Text style={[ui.caption, { color: colors.primary }]}>Need help signing in?</Text>
-        </Pressable>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, alignItems: 'center', paddingHorizontal: 20, gap: 11 },
-  logo: { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  wordmark: { fontFamily: 'Inter_700Bold', fontSize: 18, letterSpacing: -0.5 },
-  title: { fontFamily: 'Inter_700Bold', fontSize: 28, lineHeight: 34, letterSpacing: -1, marginTop: 10, textAlign: 'center' },
-  form: { width: '100%', borderWidth: StyleSheet.hairlineWidth, borderRadius: 12, padding: 18, marginTop: 12, gap: 12 },
-  tabBtn: { flex: 1, paddingVertical: 8, borderRadius: 6, borderWidth: 1, alignItems: 'center' },
+  content: {
+    paddingHorizontal: 28,
+    paddingTop: 10,
+  },
+  tabHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 22,
+  },
+  tabText: {
+    fontSize: 18,
+    fontFamily: 'Inter_700Bold',
+  },
+  tabInactive: {
+    color: '#94A3B8',
+  },
+  tabActive: {
+    color: '#0052D4',
+  },
+  tabActiveWrapper: {
+    alignItems: 'center',
+  },
+  tabIndicator: {
+    width: 24,
+    height: 3,
+    backgroundColor: '#0052D4',
+    borderRadius: 2,
+    marginTop: 4,
+  },
+  heroTitle: {
+    fontSize: 26,
+    fontFamily: 'Inter_700Bold',
+    color: '#0F172A',
+    letterSpacing: -0.6,
+  },
+  heroSub: {
+    fontSize: 14,
+    fontFamily: 'Inter_400Regular',
+    color: '#64748B',
+    marginTop: 4,
+  },
+  modeToggleRow: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 10,
+    padding: 3,
+    marginBottom: 8,
+  },
+  modeToggleChip: {
+    flex: 1,
+    paddingVertical: 7,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  modeToggleChipActive: {
+    backgroundColor: '#FFFFFF',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  modeToggleText: {
+    fontSize: 13,
+    fontFamily: 'Inter_600SemiBold',
+    color: '#64748B',
+  },
+  modeToggleTextActive: {
+    color: '#0052D4',
+  },
+  pinDotsRow: {
+    flexDirection: 'row',
+    gap: 14,
+    justifyContent: 'center',
+    marginVertical: 6,
+  },
+  pinDotBox: {
+    width: 48,
+    height: 52,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F8FAFC',
+  },
+  keypadGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    justifyContent: 'center',
+  },
+  keypadBtn: {
+    width: 76,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  keypadText: {
+    fontSize: 18,
+    fontFamily: 'Inter_700Bold',
+    color: '#1E293B',
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 18,
+    gap: 10,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#94A3B8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: '#0052D4',
+    borderColor: '#0052D4',
+  },
+  checkboxLabel: {
+    fontSize: 13,
+    fontFamily: 'Inter_500Medium',
+    color: '#475569',
+  },
+  boldBlueText: {
+    color: '#0052D4',
+    fontFamily: 'Inter_600SemiBold',
+  },
+  pillButton: {
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#0052D4',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+    shadowColor: '#0052D4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  pillButtonText: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    fontFamily: 'Inter_700Bold',
+  },
+  bottomLinkPress: {
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  bottomLinkText: {
+    fontSize: 14,
+    fontFamily: 'Inter_500Medium',
+    color: '#0052D4',
+  },
+  errorText: {
+    fontSize: 13,
+    fontFamily: 'Inter_500Medium',
+    color: '#EF4444',
+    marginTop: 4,
+  },
 });

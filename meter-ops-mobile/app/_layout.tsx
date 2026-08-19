@@ -1,4 +1,10 @@
 import React, { useEffect } from 'react';
+
+// Polyfill React.use for React 18 compatibility with Expo Router v6
+if (typeof (React as any).use !== 'function') {
+  (React as any).use = (React as any).useContext;
+}
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -53,13 +59,18 @@ function RootLayoutNav() {
   const { user, isHydrated } = useMeters();
 
   useEffect(() => {
-    if (isHydrated && !user) {
-      router.replace('/auth/sign-in');
-    }
+    if (!isHydrated) return;
+    const timer = setTimeout(() => {
+      if (!user) {
+        router.replace('/auth/sign-in');
+      }
+    }, 50);
+    return () => clearTimeout(timer);
   }, [isHydrated, user]);
 
   return (
-    <Stack screenOptions={{ headerShown: false, headerBackTitle: 'Back' }}>
+    <Stack initialRouteName={user ? "(tabs)" : "auth/sign-in"} screenOptions={{ headerShown: false, headerBackTitle: 'Back' }}>
+      <Stack.Screen name="auth/sign-in" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="meter/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="meter/assign" options={{ headerShown: true, title: 'Assign Meter', presentation: 'modal', headerRight: () => <HeaderProfileRight /> }} />
@@ -70,7 +81,6 @@ function RootLayoutNav() {
       <Stack.Screen name="meter/add-choice" options={{ headerShown: false, presentation: 'modal' }} />
       <Stack.Screen name="notifications" options={{ headerShown: true, title: 'Notifications', presentation: 'modal' }} />
       <Stack.Screen name="chat" options={{ headerShown: true, title: 'Chat', headerRight: () => <HeaderProfileRight /> }} />
-      <Stack.Screen name="auth/sign-in" options={{ headerShown: false }} />
       <Stack.Screen name="auth/sign-up" options={{ headerShown: false }} />
       <Stack.Screen name="auth/security-setup" options={{ headerShown: false, presentation: 'modal' }} />
       <Stack.Screen name="auth/forgot-password" options={{ headerShown: false, presentation: 'modal' }} />

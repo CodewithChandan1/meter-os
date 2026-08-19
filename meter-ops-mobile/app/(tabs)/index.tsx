@@ -11,13 +11,23 @@ export default function Dashboard() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { meters, stats, user, isHydrated } = useMeters();
-  const recent = meters.flatMap((meter) => meter.history.map((event) => ({ meter, event }))).slice(0, 3);
-  if (!isHydrated) return <View style={[ui.loading, { backgroundColor: colors.background }]}><Text style={[ui.caption, { color: colors.mutedForeground }]}>Preparing workspace…</Text></View>;
+
+  if (!isHydrated) {
+    return (
+      <View style={[ui.loading, { backgroundColor: colors.background }]}>
+        <Text style={[ui.caption, { color: colors.mutedForeground }]}>Preparing workspace…</Text>
+      </View>
+    );
+  }
+
+  const recent = (meters || []).flatMap((meter) => (meter?.history || []).map((event) => ({ meter, event }))).slice(0, 3);
+  const userName = user?.name ? user.name.split(' ')[0] : 'there';
+
   return <View style={{ flex: 1, backgroundColor: colors.background }}>
     <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 12, paddingBottom: insets.bottom + 100, gap: 22 }}>
       <View style={{ gap: 4 }}>
         <Text style={[ui.eyebrow, { color: colors.primary }]}>NORTH PUNJAB / METEROPS</Text>
-        <Text style={[dashStyles.title, { color: colors.foreground }]}>Good afternoon, {user?.name.split(' ')[0] ?? 'there'}.</Text>
+        <Text style={[dashStyles.title, { color: colors.foreground }]}>Good afternoon, {userName}.</Text>
         <Text style={[ui.body, { color: colors.mutedForeground }]}>Keep the field moving.</Text>
       </View>
       <Card style={[dashStyles.hero, { backgroundColor: colors.secondary, borderColor: colors.secondary }]}><View style={dashStyles.heroTop}><View><Text style={[ui.eyebrow, { color: colors.accent }]}>TODAY'S BOARD</Text><Text style={[dashStyles.heroNumber, { color: colors.primaryForeground }]}>{stats.total}</Text><Text style={[ui.body, { color: colors.primaryForeground, opacity: 0.78 }]}>meters in your workspace</Text></View><View style={[dashStyles.heroMark, { backgroundColor: colors.primary }]}><Feather name="activity" size={24} color={colors.primaryForeground} /></View></View><View style={[dashStyles.heroFoot, { borderTopColor: colors.primaryForeground }]}><Text style={[ui.caption, { color: colors.primaryForeground, opacity: 0.82 }]}>{stats.pending} awaiting installation</Text><Text style={[ui.caption, { color: colors.primaryForeground, opacity: 0.82 }]}>{stats.available} ready to assign</Text></View></Card>

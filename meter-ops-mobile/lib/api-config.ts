@@ -40,6 +40,18 @@ export function getApiBaseUrl(): string {
 }
 
 export function getWebSocketUrl(): string {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    try {
+      const parsed = new URL(process.env.EXPO_PUBLIC_API_URL);
+      const wsProtocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
+      const port = parsed.port ? `:${parsed.port}` : '';
+      return `${wsProtocol}//${parsed.hostname}${port}/ws`;
+    } catch {
+      // ignore parse error, fall through to LAN dev default
+    }
+  }
+
+  // Local dev fallback (Metro-derived LAN IP), unaffected by hosted deployments
   const host = getApiHost();
   return `ws://${host}:5001/ws`;
 }
