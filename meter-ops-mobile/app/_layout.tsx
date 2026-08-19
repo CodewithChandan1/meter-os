@@ -19,7 +19,9 @@ import { MeterProvider, useMeters } from '@/context/MeterContext';
 import { ToastProvider } from '@/context/ToastContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {
+  /* ignore splash error */
+});
 
 const queryClient = new QueryClient();
 
@@ -76,6 +78,8 @@ function RootLayoutNav() {
   );
 }
 
+import { CustomSplashScreen } from '@/components/CustomSplashScreen';
+
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
@@ -86,11 +90,13 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
+      SplashScreen.hideAsync().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded && !fontError) return null;
+  if (!fontsLoaded && !fontError) {
+    return <CustomSplashScreen />;
+  }
 
   return (
     <SafeAreaProvider>

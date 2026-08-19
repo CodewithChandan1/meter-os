@@ -17,7 +17,7 @@ export function getApiHost(): string {
   // Extract Metro bundler host IP dynamically from Expo Constants
   const hostUri =
     Constants.expoConfig?.hostUri ||
-    Constants.manifest?.debuggerHost ||
+    (Constants.manifest as any)?.debuggerHost ||
     (Constants as any).manifest2?.extra?.expoGo?.developer?.tool;
 
   if (hostUri && typeof hostUri === 'string') {

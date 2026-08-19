@@ -5,7 +5,7 @@
   "main": "expo-router/entry",
   "scripts": {
     "dev": "pnpm exec expo start",
-    "build": "node scripts/build.js",
+    "build:web": "node scripts/build.js",
     "serve": "node server/serve.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "android": "expo run:android",
@@ -21,6 +21,7 @@
     "expo": "~54.0.37",
     "expo-blur": "~15.0.8",
     "expo-constants": "~18.0.14",
+    "expo-dev-client": "^57.0.13",
     "expo-font": "~14.0.10",
     "expo-glass-effect": "~0.1.4",
     "expo-haptics": "~15.0.8",
