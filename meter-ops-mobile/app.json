@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "MeterOps Mobile",
-    "slug": "meter-ops-mobile",
+    "slug": "meter-os",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,9 +9,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/icon.png",
+      "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#f6f5f4"
+      "backgroundColor": "#0b132b"
     },
     "ios": {
       "supportsTablet": false,
@@ -34,7 +34,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "c6c4fd55-1d97-4a20-922d-752486528dea"
+        "projectId": "eff37029-bf46-471a-96a6-6ce012bdca2d"
       }
     },
     "owner": "chandan_321"
