@@ -26,6 +26,8 @@ export default function AddMeter() {
     type: 'Smart Prepaid',
     assignedTo: '',
     notes: '',
+    pdco: '',
+    fileNumber: '',
     latitude: undefined as number | undefined,
     longitude: undefined as number | undefined,
     mapLink: '',
@@ -92,6 +94,15 @@ export default function AddMeter() {
         </Card>
 
         <View style={styles.form}>
+          <View style={styles.two}>
+            <View style={{ flex: 1 }}>
+              <Field label="PDCO" value={form.pdco} onChangeText={set('pdco')} placeholder="PDCO No." testID="add-pdco" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Field label="File number" value={form.fileNumber} onChangeText={set('fileNumber')} placeholder="File No." testID="add-file-number" />
+            </View>
+          </View>
+
           <Field label="AC number" value={form.acNumber} onChangeText={set('acNumber')} placeholder="AC-123456" autoCapitalize="characters" error={error && !form.acNumber ? error : undefined} testID="add-ac-number" />
           <Field label="Serial number" value={form.serialNumber} onChangeText={set('serialNumber')} placeholder="MTR-928372" autoCapitalize="characters" error={error && !form.serialNumber ? error : undefined} testID="add-serial-number" />
           <Field label="Customer name" value={form.customerName} onChangeText={set('customerName')} placeholder="Full name" error={error && !form.customerName ? error : undefined} testID="add-customer" />

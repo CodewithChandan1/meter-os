@@ -43,6 +43,8 @@ export type Meter = {
   longitude?: number;
   mapLink?: string;
   notes?: string;
+  pdco?: string;
+  fileNumber?: string;
   cancellationReason?: string;
   history: MeterHistoryEvent[];
 };

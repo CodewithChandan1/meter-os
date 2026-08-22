@@ -38,6 +38,8 @@ export const metersTable = pgTable("meters", {
   longitude: doublePrecision("longitude"),
   mapLink: text("map_link"),
   notes: text("notes"),
+  pdco: text("pdco"),
+  fileNumber: text("file_number"),
   cancellationReason: text("cancellation_reason"),
   history: jsonb("history").default([]),
   createdAt: timestamp("created_at").defaultNow(),

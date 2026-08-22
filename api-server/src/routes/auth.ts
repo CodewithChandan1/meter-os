@@ -308,6 +308,8 @@ authRouter.post("/meters", async (req: Request, res: Response) => {
       assignedTo: meterData.assignedTo || null,
       assignedBy: meterData.assignedBy || null,
       notes: meterData.notes || null,
+      pdco: meterData.pdco || null,
+      fileNumber: meterData.fileNumber || null,
       history: meterData.history || [],
     }).returning();
 

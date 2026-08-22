@@ -27,6 +27,8 @@ export default function MeterDetail() {
     company: '',
     type: '',
     notes: '',
+    pdco: '',
+    fileNumber: '',
     mapLink: '',
     latitude: undefined as number | undefined,
     longitude: undefined as number | undefined,
@@ -44,6 +46,8 @@ export default function MeterDetail() {
         company: meter.company || 'Genus Power',
         type: meter.type || 'Single phase',
         notes: meter.notes || '',
+        pdco: meter.pdco || '',
+        fileNumber: meter.fileNumber || '',
         mapLink: meter.mapLink || '',
         latitude: meter.latitude,
         longitude: meter.longitude,
@@ -337,6 +341,8 @@ export default function MeterDetail() {
                 ['briefcase', 'Manufacturer / Company', meter.company || 'Genus Power'],
                 ['activity', 'Capacity (KW)', meter.capacity || '5 KW'],
                 ['zap', 'Meter phase / Type', meter.type || 'Single phase'],
+                ['file-text', 'PDCO', meter.pdco || 'Not specified'],
+                ['folder', 'File number', meter.fileNumber || 'Not specified'],
                 ['user-check', 'Assigned to (Field Tech)', meter.assignedTo || 'Unassigned (In Stock)'],
                 ['arrow-up-right', 'Assigned by', meter.assignedBy || 'Stock Admin'],
               ].map(([icon, label, value]) => (
@@ -432,6 +438,17 @@ export default function MeterDetail() {
                 <View style={{ flex: 1, gap: 6 }}>
                   <Text style={[ui.label, { color: colors.inkSoft }]}>Meter type</Text>
                   <TextInput style={[ui.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border }]} value={form.type} onChangeText={setField('type')} placeholder="Single phase / 3 Phase" />
+                </View>
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <View style={{ flex: 1, gap: 6 }}>
+                  <Text style={[ui.label, { color: colors.inkSoft }]}>PDCO</Text>
+                  <TextInput style={[ui.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border }]} value={form.pdco} onChangeText={setField('pdco')} placeholder="PDCO No." />
+                </View>
+                <View style={{ flex: 1, gap: 6 }}>
+                  <Text style={[ui.label, { color: colors.inkSoft }]}>File number</Text>
+                  <TextInput style={[ui.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border }]} value={form.fileNumber} onChangeText={setField('fileNumber')} placeholder="File No." />
                 </View>
               </View>
 
